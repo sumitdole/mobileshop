@@ -1,0 +1,33 @@
+name: Build Android APK
+
+# Builds the APK on GitHub's own Linux servers — nothing installs on your PC.
+# Triggers on every push to main, and can also be run manually from the
+# "Actions" tab on GitHub ("Run workflow" button).
+on:
+  push:
+    branches: [ main, master ]
+  workflow_dispatch: {}
+
+jobs:
+  build:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Build APK with Buildozer
+        uses: ArtemSBulgakov/buildozer-action@v1
+        id: buildozer
+        with:
+          command: buildozer android debug
+          buildozer_version: stable
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: ShopManager-debug-apk
+          path: ${{ steps.buildozer.outputs.filename }}
